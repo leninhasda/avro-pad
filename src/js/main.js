@@ -26,6 +26,9 @@ $(function () {
       titleLength = 25,
       LS = window.localStorage,
       runningEvent = 0,
+      totalDraft = 5,
+      index = 0,
+      counter = 1,
       selectedTpl = '<li class="cur" data-value="${name}"><a href="#">${name}</a></li>';
 
   KEY_CODE = {
@@ -74,17 +77,30 @@ $(function () {
   };
 
   fetchAllDrafts = function () {
-    $('.drafts ul li a').each(function (index) {
-      var data = '';
+    totalDraft = (!LS['totalDraft'] || LS['totalDraft'] < 5) ? 5 : parseInt(LS['totalDraft']);
+    LS['totalDraft'] = JSON.stringify(totalDraft);
+    var ulDrafts = $('.drafts > ul').empty();
+    // $('.drafts ul li a').each(function (index) {
+    for(index = 0; index < totalDraft; index++) {
+      var data = '';//, title = '';
       if (LS['draft-' + index]) {
         data = JSON.parse(LS['draft-' + index]);
       }
       drafts[index] = data;
-      $(this).text(makeTitle(data, index));
-    });
+      // if (LS['draft-title-' + index]) {
+      //   title = JSON.parse(LS['draft-title-' + index]);
+      // }
+      // titles[index] = title;
+      ulDrafts.append('<li><a href="#"></a></li>');
+      ulDrafts.find('li:eq('+index+') a').text(makeTitle(data, index));
+      ulDrafts.find('li:eq('+index+')').append('<span class="delete-draft" data-index="'+index+'">X</span>');
+    };
   };
 
-  makeTitle = function (content, index) {
+  makeTitle = function (content, idx) {
+    if(LS['draft-title-' + idx]) {
+      return JSON.parse(LS['draft-title-' + idx]);
+    }
     if (!!content){
       content = content.trim().split('\n')[0];
     } else {
@@ -97,10 +113,10 @@ $(function () {
         return content.substring(0, titleLength);
       } else {
         var pos = content.lastIndexOf(' ', titleLength);
-        return (pos > 0) ? content.substring(0, pos) : content.substring(0, (titleLength)).concat(" ...");
+        return (pos > 0) ? content.substring(0, pos) : content.substring(0, (titleLength-4)).concat(" ...");
       }
     } else {
-      return 'Draft ' + (index + 1);
+      return 'Draft ' + (counter++);
     }
   };
 
@@ -135,6 +151,7 @@ $(function () {
   fetchAllDrafts();
   // Load the first draft
   $('.drafts ul li:first a').trigger('click');
+  // console.log(currentDraftId);
 
   // The TextArea
   $editor
@@ -350,5 +367,38 @@ $(function () {
   }
 
   handleAppCache();
+
+  // add new draft
+  $('.drafts span.add-draft').on('click', function(){
+    totalDraft++;
+    LS['totalDraft'] = JSON.stringify(totalDraft);
+    var ulElement = $('.drafts > ul'),
+        newDraftElement = '<li><a href="#">Draft '+(counter++)+'</a><span class="delete-draft" data-index="'+(index)+'">X</span></li>';
+    drafts[index++] = '';
+    ulElement.append(newDraftElement);
+  });
+
+  // delete draft
+  // $('.drafts > ul li').on('click', 'span.delete-draft', function(){
+  $(document).on('click', 'span.delete-draft', function(){
+    console.log('clicked');
+    if (confirm("Are you sure want to delete?")) {
+      index = $(this).attr('data-index');
+      totalDraft--;
+      LS['totalDraft'] = JSON.stringify(totalDraft);
+      LS.removeItem('draft-title-'+index);
+      LS.removeItem('draft-'+index);
+      drafts.splice(index,1);
+      // titles.splice(index,1);      
+      $('.drafts > ul').find('li:eq('+index+')').slideUp(400, function(){
+        $(this).remove();
+      });
+      console.log('draft '+index+'removed');
+    }
+    return false;
+  }); 
+
+  // add scroll
+  $('.drafts > ul').perfectScrollbar();
 
 });

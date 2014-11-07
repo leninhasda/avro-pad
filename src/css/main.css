@@ -212,14 +212,81 @@ footer h2 {
   border-bottom: 1px solid #333;
   padding-bottom: 5px;
   margin-bottom: 20px;
+  width: 90%;
 }
 
+footer .drafts {
+  max-height: 430px;
+  overflow: hidden;
+}
+
+footer .drafts ul {
+  max-height: 365px;
+  overflow: hidden;
+  position: relative;
+  /*overflow-y: scroll;*/
+}
+
+footer .drafts ul li {
+  width: 90%;
+}
+
+footer h2 span.add-draft {
+  display: inline-block;
+  padding: 3px 5px;
+  border: 1px solid #ffa544;
+  color: #1f1f1f;
+  background: #ffa544;
+  height: 15px;
+  line-height: 15px;
+  border-radius: 2px;
+  cursor: pointer;
+  -webkit-transition: color 0.5s, background 0.5s;
+  transition: color 0.5s, background 0.5s;
+}
+
+footer h2 span.add-draft:hover {
+  color: #ffa544;
+  background: #1f1f1f;
+}
+
+footer ul li {
+  position: relative;
+}
+
+footer ul li span.delete-draft {
+  position: absolute;
+  background: transparent;
+  color: #1f1f1f;
+  top: 20%;
+  right: 10px;
+  display: inline-block;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 5px;
+  line-height: 10px;
+  cursor: pointer;
+  border: 1px solid #1f1f1f;
+  -webkit-transition: color 0.5s, background 0.5s, border 0.5s;
+  transition: color 0.5s, background 0.5s, border 0.5s;
+}
+footer ul li.active span.delete-draft {
+  border: 1px solid #ffa544;
+  color: #ffa544;
+}
+footer ul li:hover span {
+  color: #ffa544;
+  background: #1f1f1f;
+}
+footer ul li span.delete-draft:hover {
+  border: 1px solid #ffa544;
+}
 footer ul li a {
   display: block;
   padding: 5px;
   margin: 5px 0;
 }
-
 footer ul li.active a {
   background: #ffa544;
   color: #1f1f1f;
