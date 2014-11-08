@@ -27,8 +27,8 @@ $(function () {
       LS = window.localStorage,
       runningEvent = 0,
       totalDraft = 5,
-      index = 0,
       counter = 1,
+      index = 0,
       selectedTpl = '<li class="cur" data-value="${name}"><a href="#">${name}</a></li>';
 
   KEY_CODE = {
@@ -79,28 +79,26 @@ $(function () {
   fetchAllDrafts = function () {
     totalDraft = (!LS['totalDraft'] || LS['totalDraft'] < 5) ? 5 : parseInt(LS['totalDraft']);
     LS['totalDraft'] = JSON.stringify(totalDraft);
-    var ulDrafts = $('.drafts > ul').empty();
+
+    var ulDrafts = $('.drafts > ul').empty(),
+        data = '',
+        elemDraft = '';
     // $('.drafts ul li a').each(function (index) {
     for(index = 0; index < totalDraft; index++) {
-      var data = '';//, title = '';
+      data = '';
       if (LS['draft-' + index]) {
         data = JSON.parse(LS['draft-' + index]);
       }
       drafts[index] = data;
-      // if (LS['draft-title-' + index]) {
-      //   title = JSON.parse(LS['draft-title-' + index]);
-      // }
-      // titles[index] = title;
-      ulDrafts.append('<li><a href="#"></a></li>');
-      ulDrafts.find('li:eq('+index+') a').text(makeTitle(data, index));
-      ulDrafts.find('li:eq('+index+')').append('<span class="delete-draft" data-index="'+index+'">X</span>');
-    };
+      
+      elemDraft = '<li><a href="#">'+makeTitle(data, index)+'</a><span class="delete-draft" data-index="'+index+'">X</span></li>';
+      ulDrafts.append(elemDraft);
+    }
+
+    console.log('index: '+index);
   };
 
   makeTitle = function (content, idx) {
-    if(LS['draft-title-' + idx]) {
-      return JSON.parse(LS['draft-title-' + idx]);
-    }
     if (!!content){
       content = content.trim().split('\n')[0];
     } else {
@@ -143,7 +141,9 @@ $(function () {
     $(this).addClass('active');
     $current = $(this).find('a');
 
-    currentDraftId = $(this).index();
+    // currentDraftId = $(this).index();
+    currentDraftId = $(this).find('span').attr('data-index');
+    console.log('current draft id: '+currentDraftId);
     loadDraftId(currentDraftId);
   });
 
@@ -376,25 +376,42 @@ $(function () {
         newDraftElement = '<li><a href="#">Draft '+(counter++)+'</a><span class="delete-draft" data-index="'+(index)+'">X</span></li>';
     drafts[index++] = '';
     ulElement.append(newDraftElement);
+    console.log('index: '+index);
   });
 
   // delete draft
   // $('.drafts > ul li').on('click', 'span.delete-draft', function(){
   $(document).on('click', 'span.delete-draft', function(){
-    console.log('clicked');
+    // console.log('clicked');
     if (confirm("Are you sure want to delete?")) {
-      index = $(this).attr('data-index');
+      // remove from storage
+      var delIndex = $(this).attr('data-index');
       totalDraft--;
       LS['totalDraft'] = JSON.stringify(totalDraft);
-      LS.removeItem('draft-title-'+index);
-      LS.removeItem('draft-'+index);
-      drafts.splice(index,1);
-      // titles.splice(index,1);      
-      $('.drafts > ul').find('li:eq('+index+')').slideUp(400, function(){
+      // LS.removeItem('draft-title-'+delIndex);
+      LS.removeItem('draft-'+delIndex);
+      // drafts.splice(delIndex,1);
+      // titles.splice(index,1);   
+
+      // remove the draft from list
+      // $('.drafts > ul').find('li:eq('+index+')').slideUp(400, function(){
+      $(this).parent().slideUp(400, function(){
+        // make next on active
+        var nextSibling = null;
+        if($(this).next('li').length) {
+          nextSibling = $(this).next('li');
+        } else {
+          nextSibling = $(this).parent().children('li').first();
+        }
+        nextSibling.find('a').trigger('click');
+
+        // remove the clicked one
         $(this).remove();
       });
-      console.log('draft '+index+'removed');
+
+      // console.log('draft '+index+'removed');
     }
+    
     return false;
   }); 
 
